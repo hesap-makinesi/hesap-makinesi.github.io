@@ -1,258 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-  <style>
-    .calculator {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-gap: 5px;
-      text-align: center;
-    }
-    .calculator button {
-      padding: 15px;
-      font-size: 18px;
-    }
-    #result {
-      font-size: 24px;
-      height: 50px;
-    }
-    .transaction-history {
-      overflow-y: auto;
-      max-height: 400px;
-      margin-top: 20px;
-    }
-    .transaction-history .card-body {
-      padding: 0;
-    }
-    #transaction-list {
-      list-style-type: none;
-      padding: 0;
-    }
-    #transaction-list li {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-    }
-    @media (max-width: 768px) {
-      .container {
-        padding: 0 15px;
-      }
-      .calculator button {
-        padding: 10px;
-        font-size: 16px;
-      }
-      #result {
-        font-size: 20px;
-        height: 40px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesap Makinesi</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .calculator {
+            max-width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+        .calculator-screen {
+            width: 100%;
+            height: 60px;
+            background-color: #333;
+            color: #fff;
+            text-align: right;
+            font-size: 1.8rem;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: none;
+        }
+        .btn {
+            width: 22%;
+            margin: 5px;
+            font-size: 1.4rem;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2.5rem;
+        }
+        p {
+            text-align: center;
+            font-size: 1rem;
+            color: #555;
+        }
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-12 col-lg-6 mb-4">
-        <div class="card">
-          <div class="card-header">
-            <strong><a href="https://hesapmakinesi.com.tr" title="Hesap Makinesi">Hesap Makinesi</a></strong>
-          </div>
-          <div class="card-body">
-            <input type="text" id="result" class="form-control mb-3" readonly>
-            <div class="calculator">
-              <button class="btn btn-warning" onclick="appendParenthesis('(')">(</button>
-              <button class="btn btn-warning" onclick="appendParenthesis(')')">)</button>
-              <button class="btn btn-danger" onclick="deleteLastChar()">&#9003;</button>
-              <button class="btn btn-danger" onclick="clearResult()">C</button>
-              <button class="btn btn-warning" onclick="appendSqrt()">√</button>
-              <button class="btn btn-warning" onclick="appendConstant('π')">π</button>
-              <button class="btn btn-warning" onclick="appendPow()">x²</button>
-              <button class="btn btn-warning" onclick="appendOperator('+')">+</button>
-              <button class="btn btn-primary" onclick="appendNumber(1)">1</button>
-              <button class="btn btn-primary" onclick="appendNumber(2)">2</button>
-              <button class="btn btn-primary" onclick="appendNumber(3)">3</button>
-              <button class="btn btn-warning" onclick="appendOperator('-')">-</button>
-              <button class="btn btn-primary" onclick="appendNumber(4)">4</button>
-              <button class="btn btn-primary" onclick="appendNumber(5)">5</button>
-              <button class="btn btn-primary" onclick="appendNumber(6)">6</button>
-              <button class="btn btn-warning" onclick="appendOperator('/')">/</button>
-              <button class="btn btn-primary" onclick="appendNumber(7)">7</button>
-              <button class="btn btn-primary" onclick="appendNumber(8)">8</button>
-              <button class="btn btn-primary" onclick="appendNumber(9)">9</button>
-              <button class="btn btn-warning" onclick="appendOperator('*')">*</button>
-              <button class="btn btn-primary" onclick="appendNumber(0)">0</button>
-              <button class="btn btn-warning" onclick="appendConstant('e')">e</button>
-              <button class="btn btn-warning" onclick="appendNumber('.')">.</button>
-              <button class="btn btn-danger" onclick="calculate()">=</button>
-            </div>
-          </div>
+
+    <h1>Hesap Makinesi</h1>
+    <p>Basit ve hızlı matematiksel işlemler için tasarlanmış hesap makinesi.</p>
+
+    <div class="calculator">
+        <input type="text" class="calculator-screen" id="display" disabled>
+
+        <!-- 1. Satır -->
+        <div class="row">
+            <button class="btn btn-dark" onclick="clearDisplay()">C</button>
+            <button class="btn btn-dark" onclick="deleteLast()">←</button>
+            <button class="btn btn-warning" onclick="appendOperator('/')">÷</button>
+            <button class="btn btn-warning" onclick="appendOperator('*')">×</button>
         </div>
-      </div>
-      <div class="col-12 col-lg-6">
-        <div class="card transaction-history">
-          <div class="card-header">
-            <strong style="color: blue;">İşlem Geçmişi</strong>
-          </div>
-          <div class="card-body">
-            <ul id="transaction-list" class="list-group"></ul>
-            <div class="text-right mt-3">
-              <button class="btn btn-danger" onclick="clearHistory()">Geçmişi Temizle</button>
-              <button class="btn btn-warning ml-2" onclick="undo()">Geri Al</button>
-            </div>
-          </div>
+
+        <!-- 2. Satır -->
+        <div class="row">
+            <button class="btn btn-light" onclick="appendNumber(7)">7</button>
+            <button class="btn btn-light" onclick="appendNumber(8)">8</button>
+            <button class="btn btn-light" onclick="appendNumber(9)">9</button>
+            <button class="btn btn-warning" onclick="appendOperator('-')">-</button>
         </div>
-      </div>
+
+        <!-- 3. Satır -->
+        <div class="row">
+            <button class="btn btn-light" onclick="appendNumber(4)">4</button>
+            <button class="btn btn-light" onclick="appendNumber(5)">5</button>
+            <button class="btn btn-light" onclick="appendNumber(6)">6</button>
+            <button class="btn btn-warning" onclick="appendOperator('+')">+</button>
+        </div>
+
+        <!-- 4. Satır -->
+        <div class="row">
+            <button class="btn btn-light" onclick="appendNumber(1)">1</button>
+            <button class="btn btn-light" onclick="appendNumber(2)">2</button>
+            <button class="btn btn-light" onclick="appendNumber(3)">3</button>
+            <button class="btn btn-success" onclick="calculate()">=</button>
+        </div>
+
+        <!-- 5. Satır (0 ve . tuşları) -->
+        <div class="row">
+            <button class="btn btn-light" onclick="appendNumber(0)">0</button>
+            <button class="btn btn-light" onclick="appendNumber('.')">.</button>
+        </div>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-  <script>
-    let result = document.getElementById('result');
-    let transactionList = document.getElementById('transaction-list');
-    let history = [];
-    let lastOperationWasCalculation = false; // Son işlem hesaplama mı?
+    <div class="info-text">
+        Daha fazla özellik için <a href="https://www.hesapmakinesi.com.tr">hesapmakinesi.com.tr</a> adresini ziyaret edin.
+    <h2><strong>Hesap Makinesi Nedir ve Ne İşe Yarar?</strong></h2>
+    <p>Hesap makinesi, günlük hayatta kullandığımız en temel araçlardan biridir. Matematiksel işlemleri hızlı ve doğru bir şekilde gerçekleştirmemize olanak sağlar. Hesap makineleri, basit dört işlemden karmaşık bilimsel hesaplamalara kadar geniş bir kullanım alanına sahiptir. Günümüzde elektronik cihazlarda, bilgisayarlarda, mobil uygulamalarda ve web tabanlı platformlarda yer alan hesap makineleri, pratik bir çözüm sunar.</p>
 
-    function appendNumber(number) {
-      if (lastOperationWasCalculation) {
-        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
-        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
-      }
-      result.value += number;
-    }
+    <h2><strong>Online Hesap Makinesi ile Kolay Hesaplamalar</strong></h2>
+    <p>Online hesap makineleri, internet tarayıcısı üzerinden kolayca erişilebilen ve kullanılabilen araçlardır. Kullanıcılar, herhangi bir yazılım indirmeden basit veya gelişmiş matematiksel işlemleri gerçekleştirebilir. Bu tür hesap makineleri, özellikle mobil cihazlar üzerinden hızlı erişim sağladığı için oldukça tercih edilir hale gelmiştir. Aynı zamanda kullanımı kolay ve arayüzleri oldukça basittir.</p>
 
-    function appendOperator(operator) {
-      if (lastOperationWasCalculation) {
-        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
-        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
-      }
-      result.value += operator;
-    }
+    <h2><strong>Bootstrap ile Hesap Makinesi Tasarımı</strong></h2>
+    <p>Bootstrap, hesap makinesi gibi web tabanlı araçların tasarımında sıklıkla kullanılan popüler bir CSS framework'üdür. Responsive (mobil uyumlu) ve modern tasarımlar oluşturmayı kolaylaştırır. Hesap makinesi tasarımında da Bootstrap, butonların düzenlenmesi, ekranın yapılandırılması ve genel estetik görünümün sağlanmasında büyük bir rol oynar. Özellikle web geliştiricileri, hızlı ve etkili bir şekilde hesap makinesi gibi uygulamaları Bootstrap ile tasarlayabilir.</p>
 
-    function appendParenthesis(paren) {
-      result.value += paren;
-    }
+    <h2><strong>Hesap Makinesi Kullanmanın Avantajları Nelerdir?</strong></h2>
+    <p>Hesap makinesi kullanmanın en büyük avantajı, işlemleri hızlı ve doğru bir şekilde yapmamıza yardımcı olmasıdır. Ayrıca, karmaşık hesaplamaları yaparken hata yapma olasılığını en aza indirir. Online hesap makineleri, kullanıcıların her yerde ve her zaman işlem yapmalarını sağlar. Bu sayede matematiksel işlemler için manuel hesaplamalara gerek kalmadan, anında sonuç alabiliriz. Ayrıca, teknolojinin gelişmesiyle birlikte hesap makineleri çok daha işlevsel hale gelmiştir.</p>
 
-    function clearResult() {
-      result.value = '';
-    }
+    <h2><strong>Bilimsel Hesap Makineleri ile Karmaşık İşlemler</strong></h2>
+    <p>Bilimsel hesap makineleri, sadece dört işlemle sınırlı kalmayan daha gelişmiş fonksiyonlar sunan araçlardır. Bu tür makineler genellikle mühendislik, bilim ve akademik alanlarda kullanılır. Trigonometrik fonksiyonlar, logaritmik hesaplamalar, üstel işlemler gibi daha karmaşık matematiksel işlemleri gerçekleştirmek için kullanılırlar. Bilimsel hesap makineleri, klasik hesap makinelerine kıyasla çok daha fazla özellik sunarak, kullanıcıların karmaşık problemleri çözmelerine yardımcı olur.</p>
 
-    function deleteLastChar() {
-      result.value = result.value.slice(0, -1);
-    }
+    <h2><strong>Hesap Makinesi ile İlgili Dikkat Edilmesi Gerekenler</strong></h2>
+    <p>Hesap makinesi kullanırken dikkat edilmesi gereken bazı noktalar vardır. Öncelikle, doğru tuşlamalar yapmak ve işlemleri eksiksiz girmek oldukça önemlidir. Ayrıca, özellikle bilimsel hesaplamalar yaparken doğru modda olduğunuzdan emin olun. Örneğin, derece ile radyan arasında bir fark olduğunda trigonometrik hesaplamalar hatalı olabilir. Hesap makinesi ile işlem yaparken sürekli kontroller yaparak, doğru sonuçlar elde edebilirsiniz.</p>
 
-    function appendSqrt() {
-      if (lastOperationWasCalculation) {
-        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
-        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
-      }
-      result.value += '√';
-    }
+    <h2>Sık Sorulan Sorular (SSS)</h2>
 
-    function appendPow() {
-      if (lastOperationWasCalculation) {
-        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
-        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
-      }
-      result.value += '²';
-    }
+    <h3><strong>1. Hesap makinesi nedir?</strong></h3>
+    <p>Hesap makinesi, matematiksel işlemleri hızlı bir şekilde gerçekleştiren elektronik bir cihazdır. Basit dört işlemden karmaşık bilimsel hesaplamalara kadar geniş bir kullanım alanı vardır.</p>
 
-    function appendConstant(constant) {
-      if (lastOperationWasCalculation) {
-        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
-        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
-      }
-      result.value += constant;
-    }
+    <h3><strong>2. Hesap makinesi kullanmanın faydaları nelerdir?</strong></h3>
+    <p>Hesap makinesi kullanmak, hesaplamaları hızlı ve doğru bir şekilde yapmanıza olanak tanır. Karmaşık matematiksel işlemleri kolaylaştırır ve hata yapma olasılığını en aza indirir.</p>
 
-    function calculate() {
-      let expression = result.value;
+    <h3><strong>3. Online hesap makinesi nedir?</strong></h3>
+    <p>Online hesap makinesi, internet tarayıcısı üzerinden erişilebilen ve kullanılabilen bir hesaplama aracıdır. Herhangi bir yazılım indirmeye gerek kalmadan işlem yapabilirsiniz.</p>
 
-      if (expression) {
-        expression = expression.replace(/(\d+)²/g, function(match, p1) {
-          return parseFloat(p1) ** 2;
-        });
+    <h3><strong>4. Bilimsel hesap makineleri hangi işlemleri yapabilir?</strong></h3>
+    <p>Bilimsel hesap makineleri, trigonometrik fonksiyonlar, logaritma, üstel işlemler, kök alma gibi daha karmaşık matematiksel işlemleri yapabilir. Genellikle mühendislik ve akademik alanlarda kullanılır.</p>
 
-        expression = expression.replace(/√(\d+(\.\d+)?)/g, function(match, p1) {
-          return Math.sqrt(parseFloat(p1));
-        });
+    <h3><strong>5. Bootstrap ile hesap makinesi nasıl tasarlanır?</strong></h3>
+    <p>Bootstrap kullanarak, hesap makinesi tasarımında butonlar, ekran ve düzenlemeler için hazır şablonlar kullanabilir, mobil uyumlu ve modern bir hesap makinesi oluşturabilirsiniz.</p>
 
-        expression = expression.replace(/π/g, Math.PI);
-        expression = expression.replace(/e/g, Math.E);
+    <h3><strong>6. Hesap makinesi kullanırken nelere dikkat edilmelidir?</strong></h3>
+    <p>Hesap makinesi kullanırken işlemleri doğru girmek, doğru modda (derece veya radyan) olduğunuzu kontrol etmek ve işlemler sırasında sürekli kontroller yapmak önemlidir.</p>
 
-        try {
-          let simplifiedExpression = result.value; // İşlem geçmişine sade gösterim için
-          let operation = new Function('return ' + expression);
-          let resultValue = operation();
-          result.value = resultValue;
-          recordTransaction(simplifiedExpression, resultValue);
+    <h3><strong>7. Hesap makinesi sadece dört işlem mi yapabilir?</strong></h3>
+    <p>Hayır, hesap makineleri dört işlemden daha fazlasını yapabilir. Bilimsel hesap makineleri, trigonometrik fonksiyonlar, logaritma gibi daha karmaşık işlemleri de gerçekleştirebilir.</p>
 
-          // Hesaplama yapıldıktan sonra durum değiştir
-          lastOperationWasCalculation = true; 
-        } catch (error) {
-          result.value = 'Geçersiz işlem!';
+    <h3><strong>8. Hesap makineleri hangi alanlarda kullanılır?</strong></h3>
+    <p>Hesap makineleri, günlük hayattan akademik çalışmalara, mühendislikten bilimsel araştırmalara kadar geniş bir kullanım alanına sahiptir.</p>
+
+    <h3><strong>9. Online hesap makinesi güvenli midir?</strong></h3>
+    <p>Evet, çoğu online hesap makinesi güvenlidir. Ancak kullandığınız platformun güvenilir olduğundan emin olmalısınız. Verilerinizi kaydetmeyen ve reklamlar açısından güvenilir siteleri tercih etmelisiniz.</p>
+
+    <h3><strong>10. Hesap makinesi programlama dilleriyle nasıl yapılır?</strong></h3>
+    <p>Hesap makineleri genellikle JavaScript, Python gibi programlama dilleriyle yapılır. HTML ve CSS ile arayüz tasarımı yapılırken, JavaScript hesaplama fonksiyonlarını gerçekleştirir.</p>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Hesap Makinesi JavaScript -->
+    <script>
+        let display = document.getElementById('display');
+
+        function appendNumber(number) {
+            display.value += number;
         }
-      }
-    }
 
-    function recordTransaction(expression, resultValue) {
-      let transaction = {
-        expression: expression,
-        resultValue: resultValue
-      };
-      history.push(transaction);
-      displayTransaction(transaction);
-    }
+        function appendOperator(operator) {
+            display.value += operator;
+        }
 
-    function displayTransaction(transaction) {
-      let li = document.createElement('li');
-      li.classList.add('list-group-item');
-      li.textContent = `${transaction.expression} = ${transaction.resultValue}`;
-      transactionList.appendChild(li);
-    }
+        function clearDisplay() {
+            display.value = '';
+        }
 
-    function clearHistory() {
-      history = [];
-      transactionList.innerHTML = '';
-    }
+        function deleteLast() {
+            display.value = display.value.slice(0, -1);
+        }
 
-    function undo() {
-      if (history.length > 0) {
-        let lastTransaction = history.pop();
-        transactionList.removeChild(transactionList.lastChild);
-        result.value = lastTransaction.expression;
-      }
-    }
+        function calculate() {
+            try {
+                display.value = eval(display.value);
+            } catch (error) {
+                display.value = 'Hata!';
+            }
+        }
+    </script>
 
-    document.addEventListener('keydown', function(event) {
-      const key = event.key;
-
-      if (/[0-9]/.test(key)) {
-        appendNumber(parseInt(key));
-      }
-
-      if (['+', '-', '*', '/'].includes(key)) {
-        appendOperator(key);
-      }
-
-      if (key === 'Enter') {
-        calculate();
-      }
-
-      if (key === 'Delete') {
-        clearResult();
-      }
-
-      if (['(', ')'].includes(key)) {
-        appendParenthesis(key);
-      }
-
-      if (key === '.') {
-        appendNumber('.');
-      }
-
-      if (key === 'Backspace') {
-        deleteLastChar();
-      }
-    });
-  </script>
 </body>
 </html>
