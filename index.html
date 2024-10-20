@@ -1,1 +1,258 @@
-tsr
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    .calculator {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 5px;
+      text-align: center;
+    }
+    .calculator button {
+      padding: 15px;
+      font-size: 18px;
+    }
+    #result {
+      font-size: 24px;
+      height: 50px;
+    }
+    .transaction-history {
+      overflow-y: auto;
+      max-height: 400px;
+      margin-top: 20px;
+    }
+    .transaction-history .card-body {
+      padding: 0;
+    }
+    #transaction-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    #transaction-list li {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+      .calculator button {
+        padding: 10px;
+        font-size: 16px;
+      }
+      #result {
+        font-size: 20px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-12 col-lg-6 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <strong><a href="https://hesapmakinesi.com.tr" title="Hesap Makinesi">Hesap Makinesi</a></strong>
+          </div>
+          <div class="card-body">
+            <input type="text" id="result" class="form-control mb-3" readonly>
+            <div class="calculator">
+              <button class="btn btn-warning" onclick="appendParenthesis('(')">(</button>
+              <button class="btn btn-warning" onclick="appendParenthesis(')')">)</button>
+              <button class="btn btn-danger" onclick="deleteLastChar()">&#9003;</button>
+              <button class="btn btn-danger" onclick="clearResult()">C</button>
+              <button class="btn btn-warning" onclick="appendSqrt()">√</button>
+              <button class="btn btn-warning" onclick="appendConstant('π')">π</button>
+              <button class="btn btn-warning" onclick="appendPow()">x²</button>
+              <button class="btn btn-warning" onclick="appendOperator('+')">+</button>
+              <button class="btn btn-primary" onclick="appendNumber(1)">1</button>
+              <button class="btn btn-primary" onclick="appendNumber(2)">2</button>
+              <button class="btn btn-primary" onclick="appendNumber(3)">3</button>
+              <button class="btn btn-warning" onclick="appendOperator('-')">-</button>
+              <button class="btn btn-primary" onclick="appendNumber(4)">4</button>
+              <button class="btn btn-primary" onclick="appendNumber(5)">5</button>
+              <button class="btn btn-primary" onclick="appendNumber(6)">6</button>
+              <button class="btn btn-warning" onclick="appendOperator('/')">/</button>
+              <button class="btn btn-primary" onclick="appendNumber(7)">7</button>
+              <button class="btn btn-primary" onclick="appendNumber(8)">8</button>
+              <button class="btn btn-primary" onclick="appendNumber(9)">9</button>
+              <button class="btn btn-warning" onclick="appendOperator('*')">*</button>
+              <button class="btn btn-primary" onclick="appendNumber(0)">0</button>
+              <button class="btn btn-warning" onclick="appendConstant('e')">e</button>
+              <button class="btn btn-warning" onclick="appendNumber('.')">.</button>
+              <button class="btn btn-danger" onclick="calculate()">=</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card transaction-history">
+          <div class="card-header">
+            <strong style="color: blue;">İşlem Geçmişi</strong>
+          </div>
+          <div class="card-body">
+            <ul id="transaction-list" class="list-group"></ul>
+            <div class="text-right mt-3">
+              <button class="btn btn-danger" onclick="clearHistory()">Geçmişi Temizle</button>
+              <button class="btn btn-warning ml-2" onclick="undo()">Geri Al</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script>
+    let result = document.getElementById('result');
+    let transactionList = document.getElementById('transaction-list');
+    let history = [];
+    let lastOperationWasCalculation = false; // Son işlem hesaplama mı?
+
+    function appendNumber(number) {
+      if (lastOperationWasCalculation) {
+        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
+        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
+      }
+      result.value += number;
+    }
+
+    function appendOperator(operator) {
+      if (lastOperationWasCalculation) {
+        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
+        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
+      }
+      result.value += operator;
+    }
+
+    function appendParenthesis(paren) {
+      result.value += paren;
+    }
+
+    function clearResult() {
+      result.value = '';
+    }
+
+    function deleteLastChar() {
+      result.value = result.value.slice(0, -1);
+    }
+
+    function appendSqrt() {
+      if (lastOperationWasCalculation) {
+        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
+        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
+      }
+      result.value += '√';
+    }
+
+    function appendPow() {
+      if (lastOperationWasCalculation) {
+        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
+        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
+      }
+      result.value += '²';
+    }
+
+    function appendConstant(constant) {
+      if (lastOperationWasCalculation) {
+        clearResult(); // Son işlem hesaplamaysa giriş alanını temizle
+        lastOperationWasCalculation = false; // Hesaplama sonrası yeni işlem başladı
+      }
+      result.value += constant;
+    }
+
+    function calculate() {
+      let expression = result.value;
+
+      if (expression) {
+        expression = expression.replace(/(\d+)²/g, function(match, p1) {
+          return parseFloat(p1) ** 2;
+        });
+
+        expression = expression.replace(/√(\d+(\.\d+)?)/g, function(match, p1) {
+          return Math.sqrt(parseFloat(p1));
+        });
+
+        expression = expression.replace(/π/g, Math.PI);
+        expression = expression.replace(/e/g, Math.E);
+
+        try {
+          let simplifiedExpression = result.value; // İşlem geçmişine sade gösterim için
+          let operation = new Function('return ' + expression);
+          let resultValue = operation();
+          result.value = resultValue;
+          recordTransaction(simplifiedExpression, resultValue);
+
+          // Hesaplama yapıldıktan sonra durum değiştir
+          lastOperationWasCalculation = true; 
+        } catch (error) {
+          result.value = 'Geçersiz işlem!';
+        }
+      }
+    }
+
+    function recordTransaction(expression, resultValue) {
+      let transaction = {
+        expression: expression,
+        resultValue: resultValue
+      };
+      history.push(transaction);
+      displayTransaction(transaction);
+    }
+
+    function displayTransaction(transaction) {
+      let li = document.createElement('li');
+      li.classList.add('list-group-item');
+      li.textContent = `${transaction.expression} = ${transaction.resultValue}`;
+      transactionList.appendChild(li);
+    }
+
+    function clearHistory() {
+      history = [];
+      transactionList.innerHTML = '';
+    }
+
+    function undo() {
+      if (history.length > 0) {
+        let lastTransaction = history.pop();
+        transactionList.removeChild(transactionList.lastChild);
+        result.value = lastTransaction.expression;
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      const key = event.key;
+
+      if (/[0-9]/.test(key)) {
+        appendNumber(parseInt(key));
+      }
+
+      if (['+', '-', '*', '/'].includes(key)) {
+        appendOperator(key);
+      }
+
+      if (key === 'Enter') {
+        calculate();
+      }
+
+      if (key === 'Delete') {
+        clearResult();
+      }
+
+      if (['(', ')'].includes(key)) {
+        appendParenthesis(key);
+      }
+
+      if (key === '.') {
+        appendNumber('.');
+      }
+
+      if (key === 'Backspace') {
+        deleteLastChar();
+      }
+    });
+  </script>
+</body>
+</html>
